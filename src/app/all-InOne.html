@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <link rel="stylesheet" href="/w3css/4/w3.css" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.js"></script>
+
+  <style>
+    .user {
+      transition: all linear 0.5s;
+      background-color: lightblue;
+      padding: 20px;
+      height: 100%;
+    }
+
+    .ng-hide {
+      height: 0%;
+    }
+  </style>
+
+  <body ng-app="myApp" ng-controller="userCtrl">
+    <div class="w3-container">
+      <h2 class="w3-pale-green w3-padding">User Records Data Table</h2>
+      <hr />
+
+      <table class="w3-table w3-bordered w3-striped">
+        <tr class="w3-lime">
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Skills</th>
+          <th>Action</th>
+        </tr>
+        <tr ng-repeat="user in users">
+          <td>{{ user.fName }}</td>
+          <td>{{ user.lName }}</td>
+          <td ng-repeat="x in skills">{{x}}</td>
+          <td>
+            <button
+              class="w3-btn w3-ripple w3-yellow"
+              ng-click="editUser(user.id)"
+            >
+              &#9998;
+            </button>
+            <button
+              class="w3-btn w3-ripple w3-red"
+              ng-click="removeItem(user.id)"
+            >
+              X
+            </button>
+          </td>
+        </tr>
+      </table>
+      <br />
+      <button
+        class="w3-btn w3-green w3-ripple w3-margin-bottom"
+        ng-click="editUser('new')"
+        ng-model="hideform"
+      >
+        &#9998; Create New User
+      </button>
+
+      <form class="user" ng-hide="hideform">
+        <h3 ng-show="edit">Create New User:</h3>
+        <h3 ng-hide="edit">Edit User:</h3>
+        <label>First Name:</label>
+        <input
+          class="w3-input w3-border"
+          type="text"
+          ng-model="fName"
+          ng-disabled="!edit"
+          placeholder="First Name"
+          pattern="[a-zA-Z]*"
+        />
+        <br />
+        <label>Last Name:</label>
+        <input
+          class="w3-input w3-border"
+          type="text"
+          ng-model="lName"
+          ng-disabled="!edit"
+          placeholder="Last Name"
+          pattern="[a-zA-Z]*"
+        />
+        <br />
+        <label>Password:</label>
+        <input
+          class="w3-input w3-border"
+          type="password"
+          ng-model="passw1"
+          placeholder="Password"
+          pattern="[a-zA-Z0-9]*{8}"
+        />
+        <br />
+        <label>Confirm Password:</label>
+        <input
+          class="w3-input w3-border"
+          type="password"
+          ng-model="passw2"
+          placeholder="Confirm Password"
+          pattern="[a-zA-Z0-9]*{8}"
+        />
+        <br />
+        <label>Skills:</label>
+        <input
+          placeholder="Add Your Skills here..."
+          ng-model="addSkill"
+          class="w3-input w3-border w3-padding"
+        />
+        <button
+          ng-click="addItem()"
+          class="w3-btn w3-padding w3-blue w3-margin-top"
+        >
+          +
+        </button>
+        <br />
+        <p class="w3-row">
+          <span
+            class="w3-tag w3-margin-right w3-margin-top"
+            ng-repeat="x in skills"
+            >{{x}}
+            <span
+              onclick="this.parentElement.style.display='none'"
+              class="w3-margin-left"
+              style="cursor: pointer;"
+              >&times;
+            </span>
+          </span>
+        </p>
+        <p class="w3-text-red">{{errortext}}</p>
+        <br />
+
+        <button
+          class="w3-btn w3-green w3-ripple w3-margin-bottom w3-margin-top"
+          ng-disabled="error || incomplete"
+          ng-hide="addButton"
+        >
+          &#10004; Add User
+        </button>
+        <button
+          class="w3-btn w3-green w3-ripple w3-margin-bottom w3-margin-top"
+          ng-show="editButton"
+          ng-disabled="error || incomplete"
+        >
+          &#10004; Update
+        </button>
+      </form>
+    </div>
+
+    <script>
+      angular
+        .module("myApp", ["ngAnimate"])
+        .controller("userCtrl", function ($scope) {
+          $scope.fName = "";
+          $scope.lName = "";
+          $scope.passw1 = "";
+          $scope.passw2 = "";
+          $scope.skills = "";
+          $scope.users = [
+            { id: 1, fName: "Hege", lName: "Pege", skills: "C" },
+            { id: 2, fName: "Kim", lName: "Pim", skills: "CSS" },
+            { id: 3, fName: "Sal", lName: "Smith", skills: "CPP" }
+          ];
+          $scope.edit = true;
+          $scope.error = false;
+          $scope.incomplete = false;
+          $scope.hideform = true;
+          $scope.editUser = function (id) {
+            $scope.hideform = false;
+            if (id == "new") {
+              $scope.edit = true;
+              $scope.incomplete = true;
+              $scope.fName = "";
+              $scope.lName = "";
+              $scopt.skills = "";
+              $scope.editButton = false;
+              $scope.addButton = true;
+            } else {
+              $scope.edit = false;
+              $scope.fName = $scope.users[id - 1].fName;
+              $scope.lName = $scope.users[id - 1].lName;
+              $scope.skills = $scope.users[id - 1].skills;
+              $scope.editButton = true;
+              $scope.addButton = false;
+            }
+          };
+          $scope.removeItem = function (id) {
+            $scope.users.splice(id, 1);
+          };
+
+          $scope.$watch("passw1", function () {
+            $scope.test();
+          });
+          $scope.$watch("passw2", function () {
+            $scope.test();
+          });
+          $scope.$watch("fName", function () {
+            $scope.test();
+          });
+          $scope.$watch("lName", function () {
+            $scope.test();
+          });
+          $scope.$watch("skills", function () {
+            $scope.test();
+          });
+
+          $scope.test = function () {
+            if ($scope.passw1 !== $scope.passw2) {
+              $scope.error = true;
+            } else {
+              $scope.error = false;
+            }
+            $scope.incomplete = false;
+            if (
+              ($scope.edit &&
+                (!$scope.fName.length ||
+                  !$scope.lName.length ||
+                  !$scope.passw1.length ||
+                  !$scope.passw2.length)) ||
+              !$scope.skills.length
+            ) {
+              $scope.incomplete = true;
+            }
+          };
+
+          // add multiple skills
+
+          $scope.skills = ["HTML"];
+          $scope.addItem = function () {
+            $scope.errortext = "";
+            if (!$scope.addSkill) {
+              return;
+            }
+            if ($scope.skills.indexOf($scope.addSkill) == -1) {
+              $scope.skills.push($scope.addSkill);
+            } else {
+              $scope.errortext = "The item is already in your shopping list.";
+            }
+          };
+
+          $scope.removeItem = function (x) {
+            $scope.errortext = "";
+            $scope.skills.splice(x, 1);
+          };
+        });
+    </script>
+  </body>
+</html>
